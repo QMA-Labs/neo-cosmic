@@ -40,7 +40,7 @@ class MetricsSampler:
         up = (network.bytes_sent - self._last_net.bytes_sent) * 8 / elapsed / 1_000_000
         self._last_net, self._last_time = network, now
         memory = psutil.virtual_memory()
-        disk = psutil.disk_usage(self.storage_path)
+        disk = psutil.disk_usage(str(self.storage_path))
         battery = psutil.sensors_battery()
         gpu = self._gpu_metrics()
         return LiveMetrics(
