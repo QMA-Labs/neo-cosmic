@@ -1,0 +1,1 @@
+"""NEO desktop pet application."""
