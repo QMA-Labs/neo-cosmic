@@ -8,6 +8,7 @@ import shutil
 import sqlite3
 import tempfile
 import zipfile
+from contextlib import closing
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -133,10 +134,13 @@ class DriveManager:
         destination.parent.mkdir(parents=True, exist_ok=True)
         temporary = destination.with_suffix(".tmp")
         temporary.unlink(missing_ok=True)
-        with sqlite3.connect(database) as source, sqlite3.connect(temporary) as target:
+        with closing(sqlite3.connect(database)) as source, closing(
+            sqlite3.connect(temporary)
+        ) as target:
             source.backup(target)
+            target.commit()
         os.replace(temporary, destination)
-        with sqlite3.connect(destination) as check:
+        with closing(sqlite3.connect(destination)) as check:
             result = check.execute("PRAGMA integrity_check").fetchone()[0]
         if result != "ok":
             raise RuntimeError("backup integrity check failed")
