@@ -1,4 +1,4 @@
-name: Build Windows Portable
+name: Build Windows Installer
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     tags: ["v*"]
 
 jobs:
-  windows-portable:
+  windows-installer:
     runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
@@ -14,13 +14,18 @@ jobs:
         with:
           python-version: "3.13"
           cache: pip
-      - name: Build and test
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+      - name: Build, test and package
         shell: pwsh
         run: .\scripts\build_windows.ps1
       - uses: actions/upload-artifact@v4
         with:
-          name: NEO-DRIVE-WINDOWS-X64
+          name: NEO-WINDOWS-X64
           path: |
+            dist/NEO-Setup.exe
+            dist/NEO-Setup.exe.sha256
             dist/NEO-DRIVE-WINDOWS-X64.zip
             dist/NEO-DRIVE-WINDOWS-X64.zip.sha256
           if-no-files-found: error
