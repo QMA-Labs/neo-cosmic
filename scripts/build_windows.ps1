@@ -2,7 +2,8 @@ $ErrorActionPreference = "Stop"
 Set-Location (Split-Path $PSScriptRoot -Parent)
 
 if (-not (Test-Path ".venv\Scripts\python.exe")) {
-    uv venv --python 3.13 .venv
+    $Uv = Get-Command uv -ErrorAction SilentlyContinue
+    if ($Uv) { uv venv --python 3.13 .venv } else { python -m venv .venv }
 }
 
 & .venv\Scripts\python.exe -m pip install -e ".[dev]" pyinstaller
