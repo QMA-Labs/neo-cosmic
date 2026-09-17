@@ -3,11 +3,9 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 
 & "$PSScriptRoot\build_windows.ps1"
 
-$OllamaSetup = Join-Path $env:TEMP "OllamaSetup.exe"
-Invoke-WebRequest "https://ollama.com/download/OllamaSetup.exe" -OutFile $OllamaSetup
-Start-Process -FilePath $OllamaSetup -ArgumentList "/VERYSILENT /NORESTART" -Wait -WindowStyle Hidden
-$Ollama = "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe"
-if (-not (Test-Path $Ollama)) { throw "Ollama CLI was not installed on the build runner." }
+choco install ollama --no-progress -y
+$OllamaCommand = Get-Command ollama -ErrorAction Stop
+$Ollama = $OllamaCommand.Source
 $env:OLLAMA_MODELS = (Resolve-Path "build").Path + "\ollama-models"
 New-Item -ItemType Directory -Force $env:OLLAMA_MODELS | Out-Null
 $Server = Start-Process -FilePath $Ollama -ArgumentList "serve" -PassThru -WindowStyle Hidden
