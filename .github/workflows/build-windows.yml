@@ -17,12 +17,12 @@ jobs:
       - name: Install Inno Setup
         shell: pwsh
         run: choco install innosetup --no-progress -y
-      - name: Build, test and package
+      - name: Build, test, and package offline model
         shell: pwsh
-        run: .\scripts\build_windows.ps1
+        run: .\scripts\build_windows_installer.ps1
       - uses: actions/upload-artifact@v4
         with:
-          name: NEO-WINDOWS-X64
+          name: NEO-WINDOWS-X64-OFFLINE
           path: |
             dist/NEO-Setup.exe
             dist/NEO-Setup.exe.sha256
