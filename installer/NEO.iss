@@ -1,5 +1,5 @@
 #define MyAppName "NEO Cosmic"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.2.1"
 #define MyAppPublisher "QMA Labs"
 #define MyAppExeName "NEO.exe"
 
@@ -38,6 +38,7 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription:
 Source: "..\dist\NEO.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\portable\README-WINDOWS.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\.env.example"; DestDir: "{app}"; Flags: ignoreversion
+Source: "install_ollama.ps1"; DestDir: "{tmp}"; Flags: deleteafterinstall
 Source: "..\build\ollama-models\*"; DestDir: "{userprofile}\.ollama\models"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
@@ -45,19 +46,5 @@ Name: "{autoprograms}\NEO Cosmic"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\NEO Cosmic"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""if (-not (Test-Path $env:LOCALAPPDATA\Programs\Ollama\ollama.exe)) {{ irm https://ollama.com/install.ps1 | iex }}"""; StatusMsg: "Installing Ollama..."; Flags: waituntilterminated
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{tmp}\install_ollama.ps1"""; StatusMsg: "Installing Ollama..."; Flags: waituntilterminated
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch NEO Cosmic"; Flags: nowait postinstall skipifsilent
-
-[Code]
-function OllamaInstalled: Boolean;
-begin
-  Result := FileExists(ExpandConstant('{localappdata}\Programs\Ollama\ollama.exe')) or
-            FileExists(ExpandConstant('{userappdata}\Ollama\ollama.exe')) or
-            FileExists(ExpandConstant('{pf}\Ollama\ollama.exe'));
-end;
-
-procedure CurStepChanged(CurStep: TSetupStep);
-begin
-  if (CurStep = ssPostInstall) and (not OllamaInstalled) and (not WizardSilent) then
-    MsgBox('Ollama installation did not complete. Run NEO Setup again while connected to the internet.', mbError, MB_OK);
-end;
